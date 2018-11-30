@@ -83,7 +83,7 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: spec.nodeName
-          image: quay.io/ksimon/node-feature-discovery:0.1
+          image: quay.io/ksimon/node-feature-discovery:0.3
           name: node-feature-discovery
           args:
             - "--sleep-interval=60s"

@@ -35,6 +35,6 @@ func main() {
 	}
 
 	for _, cpu := range result {
-		fmt.Println("cpu-model-" + cpu)
+		fmt.Println("/cpu-model-" + cpu)
 	}
 }
