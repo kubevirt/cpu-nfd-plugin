@@ -108,7 +108,7 @@ spec:
           volumeMounts:
             - name: virsh-share
               mountPath: "/usr/share/virsh/"
-
+      initContainers:
         - image: quay.io/ksimon/cpu-model-nfd-plugin:latest
           command: ["/bin/sh","-c"]
           args: ["cp /plugin/dest/cpu-model-nfd-plugin /etc/kubernetes/node-feature-discovery/source.d/"]
