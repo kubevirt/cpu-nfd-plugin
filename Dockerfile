@@ -4,4 +4,5 @@ MAINTAINER "Karel Šimon" <ksimon@redhat.com>
 
 ENV container docker
 
-COPY nfd-host-cpus /usr/sbin/nfd-host-cpus
+RUN mkdir -p /plugin/dest
+COPY cpu-model-nfd-plugin /plugin/dest

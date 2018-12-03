@@ -83,7 +83,7 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: spec.nodeName
-          image: quay.io/ksimon/node-feature-discovery:0.3
+          image: quay.io/ksimon/node-feature-discovery:0.4
           name: node-feature-discovery
           args:
             - "--sleep-interval=60s"
@@ -109,11 +109,11 @@ spec:
             - name: virsh-share
               mountPath: "/usr/share/virsh/"
 
-        - image: quay.io/ksimon/nfd-host-supported-cpus:latest
+        - image: quay.io/ksimon/cpu-model-nfd-plugin:latest
           command: ["/bin/sh","-c"]
-          args: ["cp /usr/sbin/nfd-host-cpus /etc/kubernetes/node-feature-discovery/source.d/; sleep infinity"]
+          args: ["cp /plugin/dest/cpu-model-nfd-plugin /etc/kubernetes/node-feature-discovery/source.d/"]
           imagePullPolicy: Always
-          name: nfd-host-supported-cpus
+          name: cpu-model-nfd-plugin
           volumeMounts:
             - name: nfd-source
               mountPath: "/etc/kubernetes/node-feature-discovery/source.d/"

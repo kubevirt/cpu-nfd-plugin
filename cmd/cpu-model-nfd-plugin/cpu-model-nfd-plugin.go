@@ -23,7 +23,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/nfd-host-supported-cpus/pkg/collector"
+	"github.com/cpu-model-nfd-plugin/pkg/collector"
 )
 
 func main() {
