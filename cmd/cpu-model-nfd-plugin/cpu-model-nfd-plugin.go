@@ -31,7 +31,7 @@ func main() {
 	domCapabilitiesFilePath := flag.String("domCapabilitiesFile", "/usr/share/virsh/virsh_domcapabilities.xml", "virsh domcapabilities file")
 	flag.Parse()
 
-	modelBlackList := os.Getenv("cpu-model-black-list")
+	modelBlackList := os.Getenv("CPU_MODEL_BLACK_LIST")
 	cpuModelBlackList := map[string]bool{}
 	if modelBlackList != "" {
 		for _, model := range strings.Split(modelBlackList, " ") {

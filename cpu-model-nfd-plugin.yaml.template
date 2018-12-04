@@ -54,6 +54,8 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: spec.nodeName
+          - name: CPU_MODEL_BLACK_LIST
+            value: "opteron_g1 opteron_g2"
           image: quay.io/ksimon/node-feature-discovery:0.4
           name: node-feature-discovery
           args:
@@ -72,9 +74,6 @@ spec:
           args: ["cp /plugin/dest/cpu-model-nfd-plugin /etc/kubernetes/node-feature-discovery/source.d/"]
           imagePullPolicy: Always
           name: cpu-model-nfd-plugin
-          env:
-          - name: cpu-model-black-list
-            value: "opteron_g1 opteron_g2"
           volumeMounts:
             - name: nfd-source
               mountPath: "/etc/kubernetes/node-feature-discovery/source.d/"

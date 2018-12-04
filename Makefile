@@ -1,6 +1,6 @@
 all: docker clean
 
-push: docker
+push:
 	docker push quay.io/ksimon/cpu-model-nfd-plugin:latest
 
 docker: binary
