@@ -35,35 +35,6 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   labels:
-    name: device-plugin-kvm
-  name: device-plugin-kvm
-spec:
-  selector:
-    matchLabels:
-      name: device-plugin-kvm
-  template:
-    metadata:
-      labels:
-        name: device-plugin-kvm
-    spec:
-      containers:
-      - name: device-plugin-kvm
-        image: quay.io/kubevirt/device-plugin-kvm
-        args: ["-v", "3", "-logtostderr"]
-        securityContext:
-          privileged: true
-        volumeMounts:
-          - name: device-plugin
-            mountPath: /var/lib/kubelet/device-plugins
-      volumes:
-        - name: device-plugin
-          hostPath:
-            path: /var/lib/kubelet/device-plugins
----
-apiVersion: apps/v1
-kind: DaemonSet
-metadata:
-  labels:
     app: node-feature-discovery
   name: node-feature-discovery
 spec:
@@ -97,7 +68,7 @@ spec:
 
         - image: kubevirt/libvirt
           command: ["/bin/sh","-c"]
-          args: ["libvirtd -d; chmod o+rw /dev/kvm; while true; do virsh domcapabilities --machine q35 --arch x86_64 --virttype kvm > /usr/share/virsh/virsh_domcapabilities.xml; sleep 60; done"]
+          args: ["libvirtd -d; chmod o+rw /dev/kvm; virsh domcapabilities --machine q35 --arch x86_64 --virttype kvm > /usr/share/virsh/virsh_domcapabilities.xml;"]
           imagePullPolicy: Always
           name: libvirt
           resources:
@@ -108,6 +79,7 @@ spec:
           volumeMounts:
             - name: virsh-share
               mountPath: "/usr/share/virsh/"
+
       initContainers:
         - image: quay.io/ksimon/cpu-model-nfd-plugin:latest
           command: ["/bin/sh","-c"]
