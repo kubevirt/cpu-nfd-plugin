@@ -66,6 +66,19 @@ spec:
             - name: nfd-source
               mountPath: "/etc/kubernetes/node-feature-discovery/source.d/"
 
+      initContainers:
+        - image: quay.io/ksimon/cpu-model-nfd-plugin:latest
+          command: ["/bin/sh","-c"]
+          args: ["cp /plugin/dest/cpu-model-nfd-plugin /etc/kubernetes/node-feature-discovery/source.d/"]
+          imagePullPolicy: Always
+          name: cpu-model-nfd-plugin
+          env:
+          - name: cpu-model-black-list
+            value: "opteron_g1 opteron_g2"
+          volumeMounts:
+            - name: nfd-source
+              mountPath: "/etc/kubernetes/node-feature-discovery/source.d/"
+
         - image: kubevirt/libvirt
           command: ["/bin/sh","-c"]
           args: ["libvirtd -d; chmod o+rw /dev/kvm; virsh domcapabilities --machine q35 --arch x86_64 --virttype kvm > /usr/share/virsh/virsh_domcapabilities.xml;"]
@@ -79,19 +92,6 @@ spec:
           volumeMounts:
             - name: virsh-share
               mountPath: "/usr/share/virsh/"
-
-      initContainers:
-        - image: quay.io/ksimon/cpu-model-nfd-plugin:latest
-          command: ["/bin/sh","-c"]
-          args: ["cp /plugin/dest/cpu-model-nfd-plugin /etc/kubernetes/node-feature-discovery/source.d/"]
-          imagePullPolicy: Always
-          name: cpu-model-nfd-plugin
-          env:
-          - name: cpu-model-black-list
-            value: "opteron_g1 opteron_g2"
-          volumeMounts:
-            - name: nfd-source
-              mountPath: "/etc/kubernetes/node-feature-discovery/source.d/"
 
       volumes:
         - name: host-sys
