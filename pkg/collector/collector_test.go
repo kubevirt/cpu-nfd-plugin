@@ -49,7 +49,8 @@ func TestCollectData(t *testing.T) {
 		t.FailNow()
 	}
 
-	result, err := CollectData(filePath)
+	blackList := map[string]bool{}
+	result, err := CollectData(filePath, blackList)
 	if err != nil {
 		t.Error("CollectData should not throw error: " + err.Error())
 	}
@@ -68,12 +69,22 @@ func TestCollectData(t *testing.T) {
 		}
 	}
 
+	blackList["haswell"] = true
+	result, err = CollectData(filePath, blackList)
+	if err != nil {
+		t.Error("CollectData should not throw error: " + err.Error())
+	}
+
+	if len(result) != 0 {
+		t.Error("CollectData should return zero cpu model")
+	}
+
 	err = deleteMockFile(filePath)
 	if err != nil {
 		t.Error("deleteMockFile should not throw error: " + err.Error())
 	}
 
-	result, err = CollectData("")
+	result, err = CollectData("", blackList)
 	if err == nil {
 		t.Error("CollectData should throw error, because of empty path")
 	}
@@ -88,7 +99,7 @@ func TestCollectData(t *testing.T) {
 		t.FailNow()
 	}
 
-	_, err = CollectData(filePath)
+	_, err = CollectData(filePath, blackList)
 	if err == nil {
 		t.Error("CollectData should throw error, because data in file are not in xml")
 	}

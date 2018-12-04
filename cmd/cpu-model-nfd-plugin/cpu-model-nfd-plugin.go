@@ -22,6 +22,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/cpu-model-nfd-plugin/pkg/collector"
 )
@@ -29,7 +30,16 @@ import (
 func main() {
 	domCapabilitiesFilePath := flag.String("domCapabilitiesFile", "/usr/share/virsh/virsh_domcapabilities.xml", "virsh domcapabilities file")
 	flag.Parse()
-	result, err := collector.CollectData(*domCapabilitiesFilePath)
+
+	modelBlackList := os.Getenv("cpu-model-black-list")
+	cpuModelBlackList := map[string]bool{}
+	if modelBlackList != "" {
+		for _, model := range strings.Split(modelBlackList, " ") {
+			cpuModelBlackList[strings.ToLower(model)] = true
+		}
+	}
+
+	result, err := collector.CollectData(*domCapabilitiesFilePath, cpuModelBlackList)
 	if err != nil {
 		os.Exit(1)
 	}

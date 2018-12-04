@@ -39,7 +39,7 @@ const usableNo string = "no"
 //   </cpu>
 // </domainCapabilities>
 // Output of this xml will be: ["haswell"]
-func CollectData(hostDomCapabilitiesPath string) ([]string, error) {
+func CollectData(hostDomCapabilitiesPath string, cpuModelBlackList map[string]bool) ([]string, error) {
 	hostDomCapabilities := HostDomCapabilities{}
 	err := getStructureFromFile(hostDomCapabilitiesPath, &hostDomCapabilities)
 	if err != nil {
@@ -52,7 +52,10 @@ func CollectData(hostDomCapabilitiesPath string) ([]string, error) {
 			if model.Usable == usableNo || model.Usable == "" {
 				continue
 			}
-			cpus = append(cpus, strings.ToLower(model.Name))
+			modelName := strings.ToLower(model.Name)
+			if _, ok := cpuModelBlackList[modelName]; !ok {
+				cpus = append(cpus, modelName)
+			}
 		}
 	}
 	return cpus, nil

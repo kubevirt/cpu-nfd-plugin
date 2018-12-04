@@ -86,6 +86,9 @@ spec:
           args: ["cp /plugin/dest/cpu-model-nfd-plugin /etc/kubernetes/node-feature-discovery/source.d/"]
           imagePullPolicy: Always
           name: cpu-model-nfd-plugin
+          env:
+          - name: cpu-model-black-list
+            value: "opteron_g1 opteron_g2"
           volumeMounts:
             - name: nfd-source
               mountPath: "/etc/kubernetes/node-feature-discovery/source.d/"

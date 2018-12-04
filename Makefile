@@ -1,4 +1,4 @@
-all: push clean
+all: docker clean
 
 push: docker
 	docker push quay.io/ksimon/cpu-model-nfd-plugin:latest
