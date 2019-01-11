@@ -2,20 +2,20 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/ksimon1/cpu-model-nfd-plugin)](https://goreportcard.com/report/github.com/ksimon1/cpu-model-nfd-plugin)
 
-**cpu-model-nfd-plugin** is plugin for [node-feature-discovery](https://github.com/kubernetes-sigs/node-feature-discovery). It creates list of all supported cpu models on host, which NFD then exposes as node labels.
+**cpu-model-nfd-plugin** is plugin for [cluster-nfd-operator](https://github.com/openshift/cluster-nfd-operator). It creates list of all supported cpu models on host, which NFD then exposes as node labels.
 
 **Usage:**
 ```
-kubectl create -f cpu-model-nfd-plugin.yaml.template
+kubectl create -f cpu-model-nfd-plugin.yaml
 
 kubectl describe nodes
 ```
 
-This yaml file creates 1 pod. Pod contains NFD, libvirt (libvirt needs [Kubevirt](http://kubevirt.io/) to work properly), cpu-model-nfd-plugin.
+This yaml file creates 1 pod. Pod contains libvirt (libvirt needs [Kubevirt](http://kubevirt.io/) to work properly), cpu-model-nfd-plugin.
 
-**Description of [NFD pod](https://github.com/ksimon1/cpu-model-nfd-plugin/blob/master/cpu-model-nfd-plugin.yaml.template#L63):**
+**Description of [NFD pod](https://github.com/ksimon1/cpu-model-nfd-plugin/blob/master/cpu-model-nfd-plugin.yaml):**
 
-NFD pod contains 3 containers(NFD, libvirt, cpu-model-nfd-plugin). When cpu-model-nfd-plugin container is started, it copies cpu-model-nfd-plugin binary into NFD container in `/etc/kubernetes/node-feature-discovery/source.d/`. After it is copied, this container exits. In the libvirt container, output of virsh domcapabilities is saved into `/usr/share/virsh/` folder. This folder is shared between libvirt and NFD containers. After it is saved, this container exits. Now NFD container has all what it needs. It runs every 60 seconds cpu-model-nfd-plugin binary and this binary is taking data from `/usr/share/virsh/` folder. It parses data and prints data to stdout in format:
+NFD pod contains 2 containers(libvirt, cpu-model-nfd-plugin). In the libvirt container, output of virsh domcapabilities is saved into `/host-hook/virsh_domcapabilities.xml` folder. This folder is shared between libvirt and NFD container. After it is saved, this container exits. NFD runs every 60 seconds cpu-model-nfd-plugin binary. It parses data and prints data to stdout in format:
 ```
 /cpu-model-haswell
 /cpu-model-core2duo
