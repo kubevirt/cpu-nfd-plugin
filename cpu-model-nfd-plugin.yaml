@@ -1,102 +1,37 @@
 apiVersion: v1
-kind: ServiceAccount
+kind: Pod
 metadata:
-  name: node-feature-discovery
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: node-feature-discovery
-rules:
-- apiGroups:
-  - ""
-  resources:
-  - pods
-  - nodes
-  verbs:
-  - get
-  - patch
-  - update
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: node-feature-discovery
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: node-feature-discovery
-subjects:
-- kind: ServiceAccount
-  name: node-feature-discovery
-  namespace: default
----
-apiVersion: apps/v1
-kind: DaemonSet
-metadata:
-  labels:
-    app: node-feature-discovery
-  name: node-feature-discovery
+  name: cpu-model-nfd
 spec:
-  selector:
-    matchLabels:
-      app: node-feature-discovery
-  template:
-    metadata:
-      labels:
-        app: node-feature-discovery
-    spec:
-      hostNetwork: true
-      serviceAccount: node-feature-discovery
-      containers:
-        - env:
-          - name: NODE_NAME
-            valueFrom:
-              fieldRef:
-                fieldPath: spec.nodeName
-          - name: CPU_MODEL_BLACK_LIST
-            value: "opteron_g1 opteron_g2"
-          image: quay.io/ksimon/node-feature-discovery:0.4
-          name: node-feature-discovery
-          args:
-            - "--sleep-interval=60s"
-          volumeMounts:
-            - name: host-sys
-              mountPath: "/host-sys"
-            - name: virsh-share
-              mountPath: "/usr/share/virsh/"
-            - name: nfd-source
-              mountPath: "/etc/kubernetes/node-feature-discovery/source.d/"
-
-      initContainers:
-        - image: quay.io/ksimon/cpu-model-nfd-plugin:latest
-          command: ["/bin/sh","-c"]
-          args: ["cp /plugin/dest/cpu-model-nfd-plugin /etc/kubernetes/node-feature-discovery/source.d/"]
-          imagePullPolicy: Always
-          name: cpu-model-nfd-plugin
-          volumeMounts:
-            - name: nfd-source
-              mountPath: "/etc/kubernetes/node-feature-discovery/source.d/"
-
-        - image: kubevirt/libvirt
-          command: ["/bin/sh","-c"]
-          args: ["libvirtd -d; chmod o+rw /dev/kvm; virsh domcapabilities --machine q35 --arch x86_64 --virttype kvm > /usr/share/virsh/virsh_domcapabilities.xml;"]
-          imagePullPolicy: Always
-          name: libvirt
-          resources:
-            requests:
-              devices.kubevirt.io/kvm: "1"
-            limits:
-              devices.kubevirt.io/kvm: "1"
-          volumeMounts:
-            - name: virsh-share
-              mountPath: "/usr/share/virsh/"
-
-      volumes:
-        - name: host-sys
-          hostPath:
-            path: "/sys"
-        - name: virsh-share
-          emptyDir: {}
-        - name: nfd-source
-          emptyDir: {}
+  restartPolicy: OnFailure
+  initContainers:
+    - image: quay.io/ksimon/cpu-model-nfd-plugin:latest
+      command: ["/bin/sh","-c"]
+      args: ["cp /plugin/dest/cpu-model-nfd-plugin /host-hook/cpu-model-nfd-plugin"]
+      imagePullPolicy: Always
+      name: cpu-model-nfd-plugin
+      securityContext:
+        privileged: true
+      volumeMounts:
+        - name: nfd-hook
+          mountPath: "/host-hook"
+  containers:
+    - name: kubevirt-libvirt
+      image: kubevirt/libvirt
+      command: ["/bin/sh","-c"]
+      args: ["libvirtd -d; chmod o+rw /dev/kvm; virsh domcapabilities > /host-hook/virsh_domcapabilities.xml;"]
+      imagePullPolicy: Always
+      securityContext:
+        privileged: true
+      volumeMounts:
+        - name: nfd-hook
+          mountPath: "/host-hook"
+      resources:
+        requests:
+          devices.kubevirt.io/kvm: "1"
+        limits:
+          devices.kubevirt.io/kvm: "1"
+  volumes:
+    - name: nfd-hook
+      hostPath:
+        path: "/opt/lib/node-feature-discovery/source.d"

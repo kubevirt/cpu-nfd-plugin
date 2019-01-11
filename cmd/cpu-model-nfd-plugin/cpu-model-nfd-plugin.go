@@ -28,7 +28,7 @@ import (
 )
 
 func main() {
-	domCapabilitiesFilePath := flag.String("domCapabilitiesFile", "/usr/share/virsh/virsh_domcapabilities.xml", "virsh domcapabilities file")
+	domCapabilitiesFilePath := flag.String("domCapabilitiesFile", "/etc/kubernetes/node-feature-discovery/source.d/virsh_domcapabilities.xml", "virsh domcapabilities file")
 	flag.Parse()
 
 	modelBlackList := os.Getenv("CPU_MODEL_BLACK_LIST")
