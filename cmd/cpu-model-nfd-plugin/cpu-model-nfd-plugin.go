@@ -24,7 +24,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/cpu-model-nfd-plugin/pkg/collector"
+	"github.com/ksimon1/cpu-model-nfd-plugin/pkg/collector"
 )
 
 func main() {
