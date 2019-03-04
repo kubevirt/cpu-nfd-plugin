@@ -54,7 +54,7 @@ func CollectData(hostDomCapabilitiesPath string, cpuModelBlackList map[string]bo
 			}
 			modelName := strings.ToLower(model.Name)
 			if _, ok := cpuModelBlackList[modelName]; !ok {
-				cpus = append(cpus, modelName)
+				cpus = append(cpus, model.Name)
 			}
 		}
 	}

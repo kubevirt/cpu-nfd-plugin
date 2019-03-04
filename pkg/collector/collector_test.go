@@ -59,16 +59,6 @@ func TestCollectData(t *testing.T) {
 		t.Error("CollectData should return one cpu model")
 	}
 
-	if len(result) == 1 {
-		if result[0] != "haswell" {
-			t.Error("cpu model should equal to haswell")
-		}
-
-		if result[0] == "Haswell" {
-			t.Error("cpu model should contain lower cased chars")
-		}
-	}
-
 	blackList["haswell"] = true
 	result, err = CollectData(filePath, blackList)
 	if err != nil {
