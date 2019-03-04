@@ -1,9 +1,9 @@
 all: docker clean
 
-push:
+push-image:
 	docker push quay.io/ksimon/cpu-model-nfd-plugin:latest
 
-docker: binary
+image: binary
 	docker build -t quay.io/ksimon/cpu-model-nfd-plugin:latest .
 
 binary: test
