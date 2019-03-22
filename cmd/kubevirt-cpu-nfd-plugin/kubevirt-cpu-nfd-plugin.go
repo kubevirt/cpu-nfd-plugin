@@ -24,7 +24,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ksimon1/cpu-model-nfd-plugin/pkg/collector"
+	"kubevirt.io/kubevirt-cpu-nfd-plugin/pkg/collector"
 )
 
 func main() {
