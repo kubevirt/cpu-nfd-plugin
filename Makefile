@@ -7,7 +7,7 @@ image: binary
 	docker build -t quay.io/ksimon/kubevirt-cpu-nfd-plugin:${VERSION} .
 
 binary: test
-	go build cmd/cpu-model-nfd-plugin/kubevirt-cpu-nfd-plugin.go
+	go build cmd/kubevirt-cpu-nfd-plugin/kubevirt-cpu-nfd-plugin.go
 
 test:
 	go test ./...
