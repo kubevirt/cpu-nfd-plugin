@@ -1,8 +1,6 @@
-# cpu-model-nfd-plugin
+# kubevirt-cpu-nfd-plugin
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/ksimon1/cpu-model-nfd-plugin)](https://goreportcard.com/report/github.com/ksimon1/cpu-model-nfd-plugin)
-
-**cpu-model-nfd-plugin** is plugin for [cpu-node-labeller](https://github.com/ksimon1/cpu-node-labeller). It creates list of all supported cpu models on host, which cpu-node-labeller then exposes as node labels.
+**kubevirt-cpu-nfd-plugin** is plugin for [kubevirt-node-labeller](https://github.com/ksimon1/kubevirt-cpu-node-labeller). It creates list of all supported cpu models on host, which cpu-node-labeller then exposes as node labels.
 
 **Usage:**
 ```

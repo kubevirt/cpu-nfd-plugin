@@ -5,4 +5,4 @@ MAINTAINER "Karel Šimon" <ksimon@redhat.com>
 ENV container docker
 
 RUN mkdir -p /plugin/dest
-COPY cpu-model-nfd-plugin /plugin/dest
+COPY kubevirt-cpu-nfd-plugin /plugin/dest
