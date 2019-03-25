@@ -13,29 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Copyright 2018, 2019+ Red Hat, Inc.
+ * Copyright 2019 Red Hat, Inc.
  */
 
-package main
+package util
 
-import (
-	"fmt"
-	"os"
-
-	"kubevirt.io/kubevirt-cpu-nfd-plugin/pkg/collector"
-)
-
-func main() {
-	cpuModels, features, err := collector.CollectData()
-	if err != nil {
-		os.Exit(1)
+func UnionMap(old, new map[string]bool) {
+	for feature := range new {
+		old[feature] = true
 	}
+}
 
-	for feature := range features {
-		fmt.Println("/cpu-feature-" + feature)
+func SubtractMap(a, b map[string]bool) map[string]bool {
+	new := make(map[string]bool)
+	for k := range a {
+		if _, ok := b[k]; !ok {
+			new[k] = true
+		}
 	}
-
-	for _, cpu := range cpuModels {
-		fmt.Println("/cpu-model-" + cpu)
-	}
+	return new
 }

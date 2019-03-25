@@ -13,29 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Copyright 2018, 2019+ Red Hat, Inc.
+ * Copyright 2019 Red Hat, Inc.
  */
 
-package main
+package testutil
 
 import (
-	"fmt"
+	"io/ioutil"
 	"os"
-
-	"kubevirt.io/kubevirt-cpu-nfd-plugin/pkg/collector"
 )
 
-func main() {
-	cpuModels, features, err := collector.CollectData()
+func WriteMockDataFile(path, data string) error {
+	err := ioutil.WriteFile(path, []byte(data), 0644)
 	if err != nil {
-		os.Exit(1)
+		return err
 	}
+	return nil
+}
 
-	for feature := range features {
-		fmt.Println("/cpu-feature-" + feature)
+func DeleteMockFile(path string) error {
+	err := os.Remove(path)
+	if err != nil {
+		return err
 	}
-
-	for _, cpu := range cpuModels {
-		fmt.Println("/cpu-model-" + cpu)
-	}
+	return nil
 }

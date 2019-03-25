@@ -1,5 +1,5 @@
 all: docker clean
-VERSION="v0.0.2"
+VERSION=`git describe --tags`
 push-image:
 	docker push quay.io/ksimon/kubevirt-cpu-nfd-plugin:${VERSION}
 

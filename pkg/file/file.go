@@ -13,29 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Copyright 2018, 2019+ Red Hat, Inc.
+ * Copyright 2019 Red Hat, Inc.
  */
 
-package main
+package file
 
 import (
-	"fmt"
+	"encoding/xml"
+	"io/ioutil"
 	"os"
-
-	"kubevirt.io/kubevirt-cpu-nfd-plugin/pkg/collector"
 )
 
-func main() {
-	cpuModels, features, err := collector.CollectData()
+//GetStructureFromFile load data from file and unmarshals them into given structure
+//Given structure has to be pointer
+func GetStructureFromFile(path string, structure interface{}) error {
+	// Open xmlFile
+	fileReader, err := os.Open(path)
 	if err != nil {
-		os.Exit(1)
+		return err
 	}
+	defer fileReader.Close()
 
-	for feature := range features {
-		fmt.Println("/cpu-feature-" + feature)
+	byteValue, err := ioutil.ReadAll(fileReader)
+	if err != nil {
+		return err
 	}
-
-	for _, cpu := range cpuModels {
-		fmt.Println("/cpu-model-" + cpu)
+	//unmarshal data into structure
+	err = xml.Unmarshal(byteValue, structure)
+	if err != nil {
+		return err
 	}
+	return nil
 }

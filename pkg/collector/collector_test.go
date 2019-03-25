@@ -1,98 +1,90 @@
+/*
+ * This file is part of the KubeVirt project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Copyright 2019 Red Hat, Inc.
+ */
 package collector
 
 import (
-	"io/ioutil"
-	"os"
+	"strconv"
 	"testing"
+
+	"kubevirt.io/kubevirt-cpu-nfd-plugin/pkg/feature"
+	testutil "kubevirt.io/kubevirt-cpu-nfd-plugin/pkg/test-util"
 )
 
-var mockData = `<domainCapabilities>
-  <cpu>
-    <mode name='host-passthrough' supported='yes'/>
-    <mode name='host-model' supported='yes'>
-      <model fallback='allow'>Skylake-Client-IBRS</model>
-      <vendor>Intel</vendor>
-      <feature policy='require' name='ds'/>
-      <feature policy='require' name='acpi'/>
-      <feature policy='require' name='ss'/>
-    </mode>
-    <mode name='custom' supported='yes'>
-      <model usable='no'>EPYC-IBPB</model>
-      <model>fake-model-without-usable</model>
-      <model usable='yes'>Haswell</model>
-    </mode>
-  </cpu>
-</domainCapabilities>`
-
-func writeMockDataFile(path, data string) error {
-	err := ioutil.WriteFile(path, []byte(data), 0644)
+func prepareFiles(t *testing.T) {
+	domCapabilitiesFilePath := "/tmp/virsh-domcapabilities.xml"
+	err := testutil.WriteMockDataFile(domCapabilitiesFilePath, testutil.DomainCapabilities)
 	if err != nil {
-		return err
+		t.Error("writeMockDataFile should not throw error: " + err.Error())
+		t.FailNow()
 	}
-	return nil
+	feature.LibvirtCPUMapFolder = "/tmp/"
+	penrynPath := feature.GetPathCPUFefatures("Penryn")
+	err = testutil.WriteMockDataFile(penrynPath, testutil.CPUModelPenrynFeatures)
+	if err != nil {
+		t.Error("writeMockDataFile should not throw error: " + err.Error())
+		t.FailNow()
+	}
+	ivyBridgePath := feature.GetPathCPUFefatures("IvyBridge")
+	err = testutil.WriteMockDataFile(ivyBridgePath, testutil.CPUModelIvyBridgeFeatures)
+	if err != nil {
+		t.Error("writeMockDataFile should not throw error: " + err.Error())
+		t.FailNow()
+	}
+	haswellPath := feature.GetPathCPUFefatures("Haswell")
+	err = testutil.WriteMockDataFile(haswellPath, testutil.CPUModelHaswellFeatures)
+	if err != nil {
+		t.Error("writeMockDataFile should not throw error: " + err.Error())
+		t.FailNow()
+	}
 }
 
-func deleteMockFile(path string) error {
-	err := os.Remove(path)
-	if err != nil {
-		return err
-	}
-	return nil
+func deleteFiles() {
+	feature.LibvirtCPUMapFolder = "/tmp/"
+	testutil.DeleteMockFile(feature.GetPathCPUFefatures("Penryn"))
+	testutil.DeleteMockFile(feature.GetPathCPUFefatures("Haswell"))
+	testutil.DeleteMockFile(feature.GetPathCPUFefatures("IvyBridge"))
+	testutil.DeleteMockFile(feature.GetPathCPUFefatures(domCapabilitiesFilePath))
 }
 
-// TestCollectData test CollectData function
+// TestCollectData tests CollectData function
 func TestCollectData(t *testing.T) {
-	filePath := "/tmp/virsh-domcapabilities.xml"
-	err := writeMockDataFile(filePath, mockData)
-	if err != nil {
-		t.Error("writeMockDataFile should not throw error: " + err.Error())
-		t.FailNow()
-	}
-
-	blackList := map[string]bool{}
-	result, err := CollectData(filePath, blackList)
+	domCapabilitiesFilePath = "/tmp/virsh-domcapabilities.xml"
+	feature.LibvirtCPUMapFolder = "/tmp/"
+	prepareFiles(t)
+	cpuModels, cpuFeatures, err := CollectData()
 	if err != nil {
 		t.Error("CollectData should not throw error: " + err.Error())
 	}
 
-	if len(result) != 1 {
-		t.Error("CollectData should return one cpu model")
+	if len(cpuModels) != 2 {
+		t.Error("CollectData should return 2 cpu models, it returns: " + strconv.Itoa(len(cpuModels)))
 	}
 
-	blackList["haswell"] = true
-	result, err = CollectData(filePath, blackList)
-	if err != nil {
-		t.Error("CollectData should not throw error: " + err.Error())
+	if len(cpuFeatures) != 2 {
+		t.Error("CollectData should return 2 cpu features, it returns: " + strconv.Itoa(len(cpuFeatures)))
 	}
 
-	if len(result) != 0 {
-		t.Error("CollectData should return zero cpu model")
+	for _, feature := range testutil.NewFeatures {
+		if _, ok := cpuFeatures[feature]; !ok {
+			t.Error("features should contain: " + feature + " feature")
+			t.FailNow()
+		}
 	}
 
-	err = deleteMockFile(filePath)
-	if err != nil {
-		t.Error("deleteMockFile should not throw error: " + err.Error())
-	}
-
-	result, err = CollectData("", blackList)
-	if err == nil {
-		t.Error("CollectData should throw error, because of empty path")
-	}
-
-	if result != nil {
-		t.Error("CollectData should return nil")
-	}
-
-	err = writeMockDataFile(filePath, "pat a mat")
-	if err != nil {
-		t.Error("writeMockDataFile should not throw error: " + err.Error())
-		t.FailNow()
-	}
-
-	_, err = CollectData(filePath, blackList)
-	if err == nil {
-		t.Error("CollectData should throw error, because data in file are not in xml")
-	}
-
-	deleteMockFile(filePath)
+	deleteFiles()
 }
