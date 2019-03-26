@@ -26,9 +26,13 @@ var LibvirtCPUMapFolder = "/etc/kubernetes/node-feature-discovery/source.d/cpu_m
 
 //LoadFeatures loads features for given cpu name
 func LoadFeatures(cpuModelName string) (map[string]bool, error) {
+	if cpuModelName == "" {
+		return nil, nil
+	}
+
 	cpuFeatures := FeatureModel{}
 	cpuFeaturepath := GetPathCPUFefatures(cpuModelName)
-	err := file.GetStructureFromFile(cpuFeaturepath, &cpuFeatures)
+	err := file.GetStructureFromXMLFile(cpuFeaturepath, &cpuFeatures)
 	if err != nil {
 		return nil, err
 	}

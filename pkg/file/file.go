@@ -22,11 +22,13 @@ import (
 	"encoding/xml"
 	"io/ioutil"
 	"os"
+
+	yaml "gopkg.in/yaml.v2"
 )
 
 //GetStructureFromFile load data from file and unmarshals them into given structure
 //Given structure has to be pointer
-func GetStructureFromFile(path string, structure interface{}) error {
+func GetStructureFromXMLFile(path string, structure interface{}) error {
 	// Open xmlFile
 	fileReader, err := os.Open(path)
 	if err != nil {
@@ -40,6 +42,27 @@ func GetStructureFromFile(path string, structure interface{}) error {
 	}
 	//unmarshal data into structure
 	err = xml.Unmarshal(byteValue, structure)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func GetStructureFromYamlFile(path string, structure interface{}) error {
+	// Open xmlFile
+	fileReader, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer fileReader.Close()
+
+	byteValue, err := ioutil.ReadAll(fileReader)
+	if err != nil {
+		return err
+	}
+
+	//unmarshal data into structure
+	err = yaml.Unmarshal(byteValue, structure)
 	if err != nil {
 		return err
 	}

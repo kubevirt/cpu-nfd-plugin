@@ -16,10 +16,34 @@ Plugin parses libvirt data (cpu models, features) and prints data to stdout in f
 /cpu-feature-aes
 ...
 ```
-cpu-node-labeller takes this output and creates labels from them. Plugin has list of unsupported old cpus, which are not in the label list: 486, pentium, pentium2, pentium3, pentiumpro, coreduo, n270, core2duo, Conroe, athlon, phenom. As basic models for Intel is cpu model Penryn and for AMD it is Opteron_G1. Features which have these cpus are taken as basic features. These basic features are not in the label list. Feature labels are created as subtraction between set of newer cpu features and set of basic cpu features, e.g.:
+cpu-node-labeller takes this output and creates labels from them. 
+
+The plugin can hide old cpus. This can be done by creating config map:
+```
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cpu-plugin-configmap
+data:
+  cpu-plugin-configmap.yaml: |- 
+    obsoleteCPUs:
+      - "486"
+      - "pentium"
+      - "pentium2"
+      - "pentium3"
+      - "pentiumpro"
+    minCPU:
+      intel: "Penryn"
+      amd: "Opteron_G2"
+```
+This config map has to be created before kubevirt-node-labeller is created, otherwise plugin will show all cpu models.
+Add cpu model into obsoleteCPUs array and cpu model will not be listed in labels.
+User can define minimal cpu model baseline for Intel and AMD. This model's features will be used as basic features. These basic features are not in the label list. Feature labels are created as subtraction between set of newer cpu features and set of basic cpu features, e.g.:
 Haswell has: aes, apic, clflush
 Penryr has: apic, clflush
 subtraction is: aes. So label will be created only with aes feature.
+
+
 
 **Result:**
 ![cpus](https://camo.githubusercontent.com/582985d780e4827856f862fbdd6b17f4f27f5c8c/68747470733a2f2f692e696d6775722e636f6d2f773643654343592e706e67)

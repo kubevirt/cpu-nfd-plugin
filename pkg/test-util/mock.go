@@ -33,6 +33,7 @@ var (
       <model usable='no'>EPYC-IBPB</model>
       <model>fake-model-without-usable</model>
       <model usable='yes'>486</model>
+      <model usable='yes'>Conroe</model>
       <model usable='yes'>coreduo</model>
       <model usable='yes'>IvyBridge</model>
       <model usable='yes'>Haswell</model>
@@ -76,4 +77,20 @@ var (
 </cpus>`
 
 	NewFeatures = []string{"bmi1", "aes"}
+
+	CPUConfig = `obsoleteCPUs:
+  - "486"
+  - "pentium"
+  - "pentium2"
+  - "pentium3"
+  - "pentiumpro"
+  - "coreduo"
+  - "n270"
+  - "core2duo"
+  - "Conroe"
+  - "athlon"
+  - "phenom"
+minCPU:
+  intel: "Penryn"
+  amd: "Opteron_G1"`
 )

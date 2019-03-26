@@ -23,6 +23,7 @@ import (
 
 	"kubevirt.io/kubevirt-cpu-nfd-plugin/pkg/feature"
 	testutil "kubevirt.io/kubevirt-cpu-nfd-plugin/pkg/test-util"
+	"kubevirt.io/kubevirt-cpu-nfd-plugin/pkg/util"
 )
 
 func prepareFiles(t *testing.T) {
@@ -51,6 +52,13 @@ func prepareFiles(t *testing.T) {
 		t.Error("writeMockDataFile should not throw error: " + err.Error())
 		t.FailNow()
 	}
+
+	cpuConfigPath := "/tmp/cpu-plugin-configmap.yaml"
+	err = testutil.WriteMockDataFile(cpuConfigPath, testutil.CPUConfig)
+	if err != nil {
+		t.Error("writeMockDataFile should not throw error: " + err.Error())
+		t.FailNow()
+	}
 }
 
 func deleteFiles() {
@@ -59,12 +67,14 @@ func deleteFiles() {
 	testutil.DeleteMockFile(feature.GetPathCPUFefatures("Haswell"))
 	testutil.DeleteMockFile(feature.GetPathCPUFefatures("IvyBridge"))
 	testutil.DeleteMockFile(feature.GetPathCPUFefatures(domCapabilitiesFilePath))
+	testutil.DeleteMockFile("/tmp/cpu-plugin-configmap.yaml")
 }
 
 // TestCollectData tests CollectData function
 func TestCollectData(t *testing.T) {
 	domCapabilitiesFilePath = "/tmp/virsh-domcapabilities.xml"
 	feature.LibvirtCPUMapFolder = "/tmp/"
+	util.ConfigPath = "/tmp/cpu-plugin-configmap.yaml"
 	prepareFiles(t)
 	cpuModels, cpuFeatures, err := CollectData()
 	if err != nil {

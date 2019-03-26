@@ -30,36 +30,22 @@ const (
 
 var domCapabilitiesFilePath = "/etc/kubernetes/node-feature-discovery/source.d/virsh_domcapabilities.xml"
 
-var (
-	baselineCPU = map[string]string{
-		"AMD":   "Opteron_G1",
-		"Intel": "Penryn",
-	}
-
-	notUsableCPUx86 = map[string]bool{
-		"486":        true,
-		"pentium":    true,
-		"pentium2":   true,
-		"pentium3":   true,
-		"pentiumpro": true,
-		"coreduo":    true,
-		"n270":       true,
-		"core2duo":   true,
-		"Conroe":     true,
-		"athlon":     true,
-		"phenom":     true,
-	}
-)
-
 // CollectData retrieves xml data from file and parse them.
 // Output of this function is slice of usable cpu models and features.
 // Only models with tag usable yes will be used.
 func CollectData() ([]string, map[string]bool, error) {
 	hostDomCapabilities := HostDomCapabilities{}
-	err := file.GetStructureFromFile(domCapabilitiesFilePath, &hostDomCapabilities)
+	err := file.GetStructureFromXMLFile(domCapabilitiesFilePath, &hostDomCapabilities)
 	if err != nil {
 		return nil, nil, err
 	}
+	var config util.Config
+	config, err = util.LoadConfig()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	obsoleteCPUsx86 := config.GetObsoleteCPUMap()
 
 	basicFeaturesMap := make(map[string]bool)
 	cpus := make([]string, 0)
@@ -67,15 +53,16 @@ func CollectData() ([]string, map[string]bool, error) {
 
 	for _, mode := range hostDomCapabilities.CPU.Mode {
 		if mode.Vendor.Name != "" {
+			minCPU := config.GetMinCPUByVendor(mode.Vendor.Name)
 			var err error
-			basicFeaturesMap, err = getBasicFeatures(mode.Vendor.Name)
+			basicFeaturesMap, err = getBasicFeatures(minCPU)
 			if err != nil {
 				return nil, nil, err
 			}
 
 		}
 		for _, model := range mode.Model {
-			if _, ok := notUsableCPUx86[model.Name]; ok || model.Usable == usableNo || model.Usable == "" {
+			if _, ok := obsoleteCPUsx86[model.Name]; ok || model.Usable == usableNo || model.Usable == "" {
 				continue
 			}
 
@@ -88,8 +75,8 @@ func CollectData() ([]string, map[string]bool, error) {
 	return cpus, features, nil
 }
 
-func getBasicFeatures(vendor string) (map[string]bool, error) {
-	fm, err := feature.LoadFeatures(baselineCPU[vendor])
+func getBasicFeatures(minCPU string) (map[string]bool, error) {
+	fm, err := feature.LoadFeatures(minCPU)
 	if err != nil {
 		return nil, err
 	}
