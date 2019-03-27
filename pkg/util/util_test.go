@@ -19,47 +19,131 @@
 package util
 
 import (
-	"strconv"
+	"reflect"
 	"testing"
 )
 
 func TestUnionMap(t *testing.T) {
-	a := map[string]bool{
-		"a": true,
-		"b": true,
+	var testCases = []struct {
+		inA    map[string]bool
+		inB    map[string]bool
+		result map[string]bool
+	}{
+		{
+			inA: map[string]bool{
+				"a": true,
+				"b": true,
+			},
+			inB: map[string]bool{
+				"c": true,
+			},
+			result: map[string]bool{
+				"a": true,
+				"b": true,
+				"c": true,
+			},
+		},
+		{
+			inA: map[string]bool{},
+			inB: map[string]bool{
+				"c": true,
+			},
+			result: map[string]bool{
+				"c": true,
+			},
+		},
+		{
+			inA: map[string]bool{
+				"a": true,
+			},
+			inB: map[string]bool{},
+			result: map[string]bool{
+				"a": true,
+			},
+		},
 	}
-	b := map[string]bool{
-		"c": true,
-	}
-	UnionMap(a, b)
-	results := []string{"a", "b", "c"}
-
-	for _, result := range results {
-		if _, ok := a[result]; !ok {
-			t.Error("unionMap should contain: " + result)
-			t.FailNow()
+	for _, testCase := range testCases {
+		result := UnionMap(testCase.inA, testCase.inB)
+		if !reflect.DeepEqual(result, testCase.result) {
+			t.Error(result, " should equal: ", testCase.result)
 		}
 	}
-
 }
 func TestSubtractMap(t *testing.T) {
-	a := map[string]bool{
-		"a": true,
-		"b": true,
-	}
-	b := map[string]bool{
-		"b": true,
-	}
-	result := SubtractMap(a, b)
 
-	if len(result) != 1 {
-		t.Error("SubtractMap should contain only one string. It contains: " + strconv.Itoa(len(result)))
-		t.FailNow()
+	var testCases = []struct {
+		inA    map[string]bool
+		inB    map[string]bool
+		result map[string]bool
+	}{
+		{
+			inA: map[string]bool{
+				"a": true,
+				"b": true,
+			},
+			inB: map[string]bool{
+				"b": true,
+			},
+			result: map[string]bool{
+				"a": true,
+			},
+		},
+		{
+			inA: map[string]bool{
+				"a": true,
+				"b": true,
+			},
+			inB: map[string]bool{},
+			result: map[string]bool{
+				"a": true,
+				"b": true,
+			},
+		},
+		{
+			inA: map[string]bool{},
+			inB: map[string]bool{
+				"a": true,
+				"b": true,
+			},
+			result: map[string]bool{},
+		},
 	}
+	for _, testCase := range testCases {
+		result := SubtractMap(testCase.inA, testCase.inB)
+		if !reflect.DeepEqual(result, testCase.result) {
+			t.Error(result, " should equal: ", testCase.result)
+		}
+	}
+}
 
-	if _, ok := result["a"]; !ok {
-		t.Error("unionMap should contain 'a' string")
-		t.FailNow()
+func TestConvertStringSliceToMap(t *testing.T) {
+	var testCases = []struct {
+		inA    []string
+		result map[string]bool
+	}{
+		{
+			inA: []string{"a", "b"},
+			result: map[string]bool{
+				"a": true,
+				"b": true,
+			},
+		},
+		{
+			inA: []string{"a"},
+			result: map[string]bool{
+				"a": true,
+			},
+		},
+		{
+			inA:    []string{},
+			result: map[string]bool{},
+		},
+	}
+	for _, testCase := range testCases {
+		result := ConvertStringSliceToMap(testCase.inA)
+		if !reflect.DeepEqual(result, testCase.result) {
+			t.Error(result, " should equal: ", testCase.result)
+		}
 	}
 
 }

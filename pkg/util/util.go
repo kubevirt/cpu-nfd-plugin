@@ -18,16 +18,15 @@
 
 package util
 
-import (
-	"kubevirt.io/kubevirt-cpu-nfd-plugin/pkg/file"
-)
-
-var ConfigPath = "/etc/kubernetes/node-feature-discovery/source.d/cpu-plugin-configmap.yaml"
-
-func UnionMap(old, new map[string]bool) {
-	for feature := range new {
-		old[feature] = true
+func UnionMap(a, b map[string]bool) map[string]bool {
+	unionMap := make(map[string]bool)
+	for feature := range a {
+		unionMap[feature] = true
 	}
+	for feature := range b {
+		unionMap[feature] = true
+	}
+	return unionMap
 }
 
 func SubtractMap(a, b map[string]bool) map[string]bool {
@@ -46,38 +45,4 @@ func ConvertStringSliceToMap(s []string) map[string]bool {
 		result[v] = true
 	}
 	return result
-}
-
-func LoadConfig() (Config, error) {
-	config := Config{}
-	err := file.GetStructureFromYamlFile(ConfigPath, &config)
-	if err != nil {
-		return Config{}, err
-	}
-	return config, err
-}
-
-func (c *Config) GetObsoleteCPUMap() map[string]bool {
-	return ConvertStringSliceToMap(c.ObsoleteCPUs)
-}
-
-func (c *Config) GetMinCPUByVendor(vendor string) string {
-	var minCPU string
-	if vendor == "Intel" {
-		//set default baseline cpu model
-		if c.MinCPU.Intel == "" {
-			minCPU = "Conroe"
-		} else {
-			minCPU = c.MinCPU.Intel
-		}
-	} else {
-		//set default baseline cpu model
-		if c.MinCPU.AMD == "" {
-			minCPU = "Opteron_G1"
-		} else {
-			minCPU = c.MinCPU.AMD
-		}
-	}
-
-	return minCPU
 }

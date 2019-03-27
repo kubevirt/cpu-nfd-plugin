@@ -26,43 +26,46 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-//GetStructureFromFile load data from file and unmarshals them into given structure
-//Given structure has to be pointer
-func GetStructureFromXMLFile(path string, structure interface{}) error {
-	// Open xmlFile
+func openFile(path string) ([]byte, error) {
+	// Open file
 	fileReader, err := os.Open(path)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer fileReader.Close()
 
 	byteValue, err := ioutil.ReadAll(fileReader)
 	if err != nil {
+		return nil, err
+	}
+	return byteValue, nil
+}
+
+//GetStructureFromXMLFile load data from xml file and unmarshals them into given structure
+//Given structure has to be pointer
+func GetStructureFromXMLFile(path string, structure interface{}) error {
+	rawFile, err := openFile(path)
+	if err != nil {
 		return err
 	}
 	//unmarshal data into structure
-	err = xml.Unmarshal(byteValue, structure)
+	err = xml.Unmarshal(rawFile, structure)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
+//GetStructureFromYamlFile load data from yaml file and unmarshals them into given structure
+//Given structure has to be pointer
 func GetStructureFromYamlFile(path string, structure interface{}) error {
-	// Open xmlFile
-	fileReader, err := os.Open(path)
-	if err != nil {
-		return err
-	}
-	defer fileReader.Close()
-
-	byteValue, err := ioutil.ReadAll(fileReader)
+	rawFile, err := openFile(path)
 	if err != nil {
 		return err
 	}
 
 	//unmarshal data into structure
-	err = yaml.Unmarshal(byteValue, structure)
+	err = yaml.Unmarshal(rawFile, structure)
 	if err != nil {
 		return err
 	}

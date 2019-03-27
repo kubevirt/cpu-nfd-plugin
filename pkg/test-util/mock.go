@@ -41,6 +41,28 @@ var (
   </cpu>
 </domainCapabilities>`
 
+	DomainCapabilitiesNothingUsable = `<domainCapabilities>
+  <cpu>
+    <mode name='host-passthrough' supported='yes'/>
+    <mode name='host-model' supported='yes'>
+      <model fallback='allow'>Skylake-Client-IBRS</model>
+      <vendor>Intel</vendor>
+      <feature policy='require' name='ds'/>
+      <feature policy='require' name='acpi'/>
+      <feature policy='require' name='ss'/>
+    </mode>
+    <mode name='custom' supported='yes'>
+      <model usable='no'>EPYC-IBPB</model>
+      <model>fake-model-without-usable</model>
+      <model usable='no'>486</model>
+      <model usable='no'>Conroe</model>
+      <model usable='no'>coreduo</model>
+      <model usable='no'>IvyBridge</model>
+      <model usable='no'>Haswell</model>
+    </mode>
+  </cpu>
+</domainCapabilities>`
+
 	Features = []string{"apic", "clflush", "cmov"}
 
 	CPUModelHaswellFeatures = `<cpus>
@@ -90,7 +112,5 @@ var (
   - "Conroe"
   - "athlon"
   - "phenom"
-minCPU:
-  intel: "Penryn"
-  amd: "Opteron_G1"`
+minCPU: "Penryn"`
 )

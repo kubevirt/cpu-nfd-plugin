@@ -19,6 +19,7 @@
 package collector
 
 import (
+	"kubevirt.io/kubevirt-cpu-nfd-plugin/pkg/config"
 	"kubevirt.io/kubevirt-cpu-nfd-plugin/pkg/feature"
 	"kubevirt.io/kubevirt-cpu-nfd-plugin/pkg/file"
 	"kubevirt.io/kubevirt-cpu-nfd-plugin/pkg/util"
@@ -39,13 +40,10 @@ func CollectData() ([]string, map[string]bool, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	var config util.Config
-	config, err = util.LoadConfig()
-	if err != nil {
-		return nil, nil, err
-	}
+	var c config.Config
+	c, _ = config.LoadConfig()
 
-	obsoleteCPUsx86 := config.GetObsoleteCPUMap()
+	obsoleteCPUsx86 := c.GetObsoleteCPUMap()
 
 	basicFeaturesMap := make(map[string]bool)
 	cpus := make([]string, 0)
@@ -53,9 +51,9 @@ func CollectData() ([]string, map[string]bool, error) {
 
 	for _, mode := range hostDomCapabilities.CPU.Mode {
 		if mode.Vendor.Name != "" {
-			minCPU := config.GetMinCPUByVendor(mode.Vendor.Name)
+			minCPU := c.GetMinCPU()
 			var err error
-			basicFeaturesMap, err = getBasicFeatures(minCPU)
+			basicFeaturesMap, err = parseFeatures(basicFeaturesMap, minCPU)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -67,7 +65,7 @@ func CollectData() ([]string, map[string]bool, error) {
 			}
 
 			newFeatures, _ := parseFeatures(basicFeaturesMap, model.Name)
-			util.UnionMap(features, newFeatures)
+			features = util.UnionMap(features, newFeatures)
 
 			cpus = append(cpus, model.Name)
 		}
@@ -75,14 +73,7 @@ func CollectData() ([]string, map[string]bool, error) {
 	return cpus, features, nil
 }
 
-func getBasicFeatures(minCPU string) (map[string]bool, error) {
-	fm, err := feature.LoadFeatures(minCPU)
-	if err != nil {
-		return nil, err
-	}
-	return fm, nil
-}
-
+//parseFeatures loads features from file and returns only new features which are not in basic features
 func parseFeatures(basicFeatures map[string]bool, cpuName string) (map[string]bool, error) {
 	features, err := feature.LoadFeatures(cpuName)
 	if err != nil {

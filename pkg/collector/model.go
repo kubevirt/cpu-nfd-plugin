@@ -34,6 +34,7 @@ type Mode struct {
 	Model  []Model `xml:"model"`
 }
 
+//Vendor represents vendor of host CPU
 type Vendor struct {
 	Name string `xml:",chardata"`
 }
