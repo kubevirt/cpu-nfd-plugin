@@ -21,30 +21,14 @@ package file
 import (
 	"encoding/xml"
 	"io/ioutil"
-	"os"
 
 	yaml "gopkg.in/yaml.v2"
 )
 
-func openFile(path string) ([]byte, error) {
-	// Open file
-	fileReader, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer fileReader.Close()
-
-	byteValue, err := ioutil.ReadAll(fileReader)
-	if err != nil {
-		return nil, err
-	}
-	return byteValue, nil
-}
-
 //GetStructureFromXMLFile load data from xml file and unmarshals them into given structure
 //Given structure has to be pointer
 func GetStructureFromXMLFile(path string, structure interface{}) error {
-	rawFile, err := openFile(path)
+	rawFile, err := ioutil.ReadFile(path)
 	if err != nil {
 		return err
 	}
@@ -59,7 +43,7 @@ func GetStructureFromXMLFile(path string, structure interface{}) error {
 //GetStructureFromYamlFile load data from yaml file and unmarshals them into given structure
 //Given structure has to be pointer
 func GetStructureFromYamlFile(path string, structure interface{}) error {
-	rawFile, err := openFile(path)
+	rawFile, err := ioutil.ReadFile(path)
 	if err != nil {
 		return err
 	}
