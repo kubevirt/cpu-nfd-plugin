@@ -13,72 +13,71 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Copyright 2018 Red Hat, Inc.
+ * Copyright 2019 Red Hat, Inc.
  */
 
 package collector
 
 import (
-	"encoding/xml"
-	"io/ioutil"
-	"os"
-	"strings"
+	"kubevirt.io/kubevirt-cpu-nfd-plugin/pkg/config"
+	"kubevirt.io/kubevirt-cpu-nfd-plugin/pkg/feature"
+	"kubevirt.io/kubevirt-cpu-nfd-plugin/pkg/file"
+	"kubevirt.io/kubevirt-cpu-nfd-plugin/pkg/util"
 )
 
-const usableNo string = "no"
+const (
+	usableNo string = "no"
+)
+
+var domCapabilitiesFilePath = "/etc/kubernetes/node-feature-discovery/source.d/virsh_domcapabilities.xml"
 
 // CollectData retrieves xml data from file and parse them.
-// Output of this function is slice of usable lowercased cpu models.
-// Only models with tag usable yes will be added to slice.
-// <domainCapabilities>
-//   <cpu>
-//     <mode name='custom' supported='yes'>
-//       <model usable='no'>EPYC-IBPB</model>
-//       <model usable='yes'>Haswell</model>
-//     </mode>
-//   </cpu>
-// </domainCapabilities>
-// Output of this xml will be: ["haswell"]
-func CollectData(hostDomCapabilitiesPath string, cpuModelBlackList map[string]bool) ([]string, error) {
+// Output of this function is slice of usable cpu models and features.
+// Only models with tag usable yes will be used.
+func CollectData() ([]string, map[string]bool, error) {
 	hostDomCapabilities := HostDomCapabilities{}
-	err := getStructureFromFile(hostDomCapabilitiesPath, &hostDomCapabilities)
+	err := file.GetStructureFromXMLFile(domCapabilitiesFilePath, &hostDomCapabilities)
+	if err != nil {
+		return nil, nil, err
+	}
+	var c config.Config
+	c, _ = config.LoadConfig()
+
+	obsoleteCPUsx86 := c.GetObsoleteCPUMap()
+
+	basicFeaturesMap := make(map[string]bool)
+	cpus := make([]string, 0)
+	features := make(map[string]bool)
+
+	for _, mode := range hostDomCapabilities.CPU.Mode {
+		if mode.Vendor.Name != "" {
+			minCPU := c.GetMinCPU()
+			var err error
+			basicFeaturesMap, err = parseFeatures(basicFeaturesMap, minCPU)
+			if err != nil {
+				return nil, nil, err
+			}
+
+		}
+		for _, model := range mode.Model {
+			if _, ok := obsoleteCPUsx86[model.Name]; ok || model.Usable == usableNo || model.Usable == "" {
+				continue
+			}
+
+			newFeatures, _ := parseFeatures(basicFeaturesMap, model.Name)
+			features = util.UnionMap(features, newFeatures)
+
+			cpus = append(cpus, model.Name)
+		}
+	}
+	return cpus, features, nil
+}
+
+//parseFeatures loads features from file and returns only new features which are not in basic features
+func parseFeatures(basicFeatures map[string]bool, cpuName string) (map[string]bool, error) {
+	features, err := feature.LoadFeatures(cpuName)
 	if err != nil {
 		return nil, err
 	}
-	cpus := make([]string, 0)
-
-	for _, mode := range hostDomCapabilities.CPU.Mode {
-		for _, model := range mode.Model {
-			if model.Usable == usableNo || model.Usable == "" {
-				continue
-			}
-			modelName := strings.ToLower(model.Name)
-			if _, ok := cpuModelBlackList[modelName]; !ok {
-				cpus = append(cpus, model.Name)
-			}
-		}
-	}
-	return cpus, nil
-}
-
-//getStructureFromFile load data from file and unmarshals them into given structure
-//Given structure has to be pointer
-func getStructureFromFile(path string, structure interface{}) error {
-	// Open xmlFile
-	fileReader, err := os.Open(path)
-	if err != nil {
-		return err
-	}
-	defer fileReader.Close()
-
-	byteValue, err := ioutil.ReadAll(fileReader)
-	if err != nil {
-		return err
-	}
-	//unmarshal data into structure
-	err = xml.Unmarshal(byteValue, structure)
-	if err != nil {
-		return err
-	}
-	return nil
+	return util.SubtractMap(features, basicFeatures), nil
 }

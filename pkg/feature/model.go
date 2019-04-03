@@ -13,29 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Copyright 2018, 2019+ Red Hat, Inc.
+ * Copyright 2019 Red Hat, Inc.
  */
 
-package main
+package feature
 
-import (
-	"fmt"
-	"os"
+type FeatureModel struct {
+	Model Features `xml:"model"`
+}
 
-	"kubevirt.io/kubevirt-cpu-nfd-plugin/pkg/collector"
-)
+type Features struct {
+	Features []Feature `xml:"feature"`
+}
 
-func main() {
-	cpuModels, features, err := collector.CollectData()
-	if err != nil {
-		os.Exit(1)
-	}
-
-	for feature := range features {
-		fmt.Println("/cpu-feature-" + feature)
-	}
-
-	for _, cpu := range cpuModels {
-		fmt.Println("/cpu-model-" + cpu)
-	}
+type Feature struct {
+	Name string `xml:"name,attr"`
 }
