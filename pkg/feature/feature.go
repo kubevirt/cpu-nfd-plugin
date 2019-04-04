@@ -19,7 +19,7 @@
 package feature
 
 import (
-	"kubevirt.io/kubevirt-cpu-nfd-plugin/pkg/file"
+	"github.com/ksimon1/kubevirt-cpu-nfd-plugin/pkg/file"
 )
 
 var LibvirtCPUMapFolder = "/etc/kubernetes/node-feature-discovery/source.d/cpu_map/"

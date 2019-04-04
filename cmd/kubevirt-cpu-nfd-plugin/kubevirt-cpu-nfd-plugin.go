@@ -22,7 +22,7 @@ import (
 	"fmt"
 	"os"
 
-	"kubevirt.io/kubevirt-cpu-nfd-plugin/pkg/collector"
+	"github.com/ksimon1/kubevirt-cpu-nfd-plugin/pkg/collector"
 )
 
 func main() {

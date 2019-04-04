@@ -20,7 +20,7 @@ package feature
 import (
 	"testing"
 
-	testutil "kubevirt.io/kubevirt-cpu-nfd-plugin/pkg/test-util"
+	testutil "github.com/ksimon1/kubevirt-cpu-nfd-plugin/pkg/test-util"
 )
 
 func TestGetPath(t *testing.T) {
