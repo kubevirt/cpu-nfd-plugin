@@ -1,6 +1,6 @@
 # kubevirt-cpu-nfd-plugin
 
-**kubevirt-cpu-nfd-plugin** is plugin for [kubevirt-node-labeller](https://github.com/ksimon1/kubevirt-cpu-node-labeller). It creates list of all supported cpu models and features on host, which cpu-node-labeller then exposes as node labels.
+**kubevirt-cpu-nfd-plugin** is plugin for [kubevirt-node-labeller](https://github.com/ksimon1/kubevirt-node-labeller). It creates list of all supported cpu models and features on host, which node-labeller then exposes as node labels.
 
 **How it works**
 
@@ -36,4 +36,3 @@ User can define minimal cpu model. This model's features will be used as basic f
 Haswell has: aes, apic, clflush
 Penryr has: apic, clflush
 subtraction is: aes. So label will be created only with aes feature.
-
