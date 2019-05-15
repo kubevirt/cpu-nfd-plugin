@@ -1,21 +1,37 @@
+sudo: required
+dist: xenial
 language: go
 go: "1.10"
 
-services:
-- docker
+branches:
+  only:
+  - master
 
-before_script:
-- echo "$NFDPASS" | docker login -u="$NFDNAME" quay.io --password-stdin
+addons:
+  apt:
+    packages:
+    - libvirt-bin
+    - qemu-kvm
 
 jobs:
   include:
-  - stage: Build Image
-    name: build kubevirt-cpu-nfd-plugin image
-    script: make image 
+  - stage: Functional test
+    name: Test kubevirt-cpu-nfd-plugin 
+    before_script: 
+      - locate cpu_map
+      - ls -l /usr/share/libvirt/cpu_map/
+      - sudo mkdir -p "/etc/kubernetes/node-feature-discovery/source.d/";
+      - sudo cp test/virsh-domcapabilities-example.xml /etc/kubernetes/node-feature-discovery/source.d/virsh-domcapabilities.xml
+      - make image;
+
+    script: bash -x automation/functional_test.sh
     deploy:
+      before_script: 
+      - echo "$NFDPASS" | docker login -u="$NFDNAME" quay.io --password-stdin
       provider: script
       skip_cleanup: true
       script: make push-image
       on:
         branch: master
         tags: true
+
