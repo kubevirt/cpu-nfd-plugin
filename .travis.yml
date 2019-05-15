@@ -10,7 +10,7 @@ before_script:
 jobs:
   include:
   - stage: Build Image
-    name: build kubevirt-cpu-nfd-plugin image
+    name: build cpu-nfd-plugin image
     script: make image 
     deploy:
       provider: script

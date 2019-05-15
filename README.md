@@ -1,6 +1,6 @@
-# kubevirt-cpu-nfd-plugin
+# cpu-nfd-plugin
 
-**kubevirt-cpu-nfd-plugin** is plugin for [kubevirt-node-labeller](https://github.com/ksimon1/kubevirt-node-labeller). It creates list of all supported cpu models and features on host, which node-labeller then exposes as node labels.
+**cpu-nfd-plugin** is plugin for [node-labeller](https://github.com/kubevirt/node-labeller). It creates list of all supported cpu models and features on host, which node-labeller then exposes as node labels.
 
 **How it works**
 
@@ -18,7 +18,7 @@ The plugin can hide old cpus. This can be done by creating config map:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: kubevirt-cpu-plugin-configmap
+  name: cpu-plugin-configmap
 data:
   cpu-plugin-configmap.yaml: |- 
     obsoleteCPUs:
@@ -29,7 +29,7 @@ data:
       - "pentiumpro"
     minCPU: "Penryn"
 ```
-This config map has to be created before kubevirt-node-labeller is created (example of deploy manifest can be found [here](https://github.com/ksimon1/kubevirt-node-labeller/blob/master/kubevirt-node-labeller.yaml)), otherwise plugin will show all cpu models. Plugin will not reload when config map is changed.
+This config map has to be created before kubevirt-node-labeller is created (example of deploy manifest can be found [here](https://github.com/kubevirt/node-labeller/tree/master/deploy)), otherwise plugin will show all cpu models. Plugin will not reload when config map is changed.
 
 Add cpu model into obsoleteCPUs array and cpu model will not be listed in labels.
 User can define minimal cpu model. This model's features will be used as basic features. These basic features are not in the label list. Feature labels are created as subtraction between set of newer cpu features and set of basic cpu features, e.g.:

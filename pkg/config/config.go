@@ -19,8 +19,8 @@
 package config
 
 import (
-	"github.com/ksimon1/kubevirt-cpu-nfd-plugin/pkg/file"
-	"github.com/ksimon1/kubevirt-cpu-nfd-plugin/pkg/util"
+	"kubevirt.io/cpu-nfd-plugin/pkg/file"
+	"kubevirt.io/cpu-nfd-plugin/pkg/util"
 )
 
 //Config holds data about obsolete cpus and minimal baseline cpus

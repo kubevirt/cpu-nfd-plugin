@@ -1,8 +1,8 @@
 FROM registry.access.redhat.com/ubi8/ubi-minimal
 
-MAINTAINER "Karel Šimon" <ksimon@redhat.com>
+MAINTAINER "The KubeVirt Project" <kubevirt-dev@googlegroups.com>
 
 ENV container docker
 
 RUN mkdir -p /plugin/dest
-COPY kubevirt-cpu-nfd-plugin /plugin/dest
+COPY cpu-nfd-plugin /plugin/dest
