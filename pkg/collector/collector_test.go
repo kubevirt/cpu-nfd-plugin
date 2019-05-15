@@ -22,9 +22,9 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/ksimon1/kubevirt-cpu-nfd-plugin/pkg/config"
-	"github.com/ksimon1/kubevirt-cpu-nfd-plugin/pkg/feature"
-	testutil "github.com/ksimon1/kubevirt-cpu-nfd-plugin/pkg/test-util"
+	"kubevirt.io/cpu-nfd-plugin/pkg/config"
+	"kubevirt.io/cpu-nfd-plugin/pkg/feature"
+	testutil "kubevirt.io/cpu-nfd-plugin/pkg/test-util"
 )
 
 func TestCollectData(t *testing.T) {

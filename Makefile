@@ -1,18 +1,18 @@
 all: docker clean
 VERSION=`git describe --tags`
 push-image:
-	docker push quay.io/ksimon/kubevirt-cpu-nfd-plugin:${VERSION}
+	docker push quay.io/kubevirt/cpu-nfd-plugin:${VERSION}
 
-image: binary
-	docker build -t quay.io/ksimon/kubevirt-cpu-nfd-plugin:${VERSION} .
+image:
+	docker build -t quay.io/kubevirt/cpu-nfd-plugin:${VERSION} .
 
 binary: test
-	go build cmd/kubevirt-cpu-nfd-plugin/kubevirt-cpu-nfd-plugin.go
+	go build cmd/cpu-nfd-plugin/cpu-nfd-plugin.go
 
 test:
 	go test ./...
 
 clean:
-	rm -f kubevirt-cpu-nfd-plugin
+	rm -f cpu-nfd-plugin
 
 .PHONY: all push docker binary test clean

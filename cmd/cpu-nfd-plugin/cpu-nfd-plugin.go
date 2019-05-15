@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Copyright 2018, 2019+ Red Hat, Inc.
+ * Copyright 2018, 2019 Red Hat, Inc.
  */
 
 package main
@@ -22,7 +22,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ksimon1/kubevirt-cpu-nfd-plugin/pkg/collector"
+	"kubevirt.io/cpu-nfd-plugin/pkg/collector"
 )
 
 func main() {

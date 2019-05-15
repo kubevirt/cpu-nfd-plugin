@@ -19,10 +19,10 @@
 package collector
 
 import (
-	"github.com/ksimon1/kubevirt-cpu-nfd-plugin/pkg/config"
-	"github.com/ksimon1/kubevirt-cpu-nfd-plugin/pkg/feature"
-	"github.com/ksimon1/kubevirt-cpu-nfd-plugin/pkg/file"
-	"github.com/ksimon1/kubevirt-cpu-nfd-plugin/pkg/util"
+	"kubevirt.io/cpu-nfd-plugin/pkg/config"
+	"kubevirt.io/cpu-nfd-plugin/pkg/feature"
+	"kubevirt.io/cpu-nfd-plugin/pkg/file"
+	"kubevirt.io/cpu-nfd-plugin/pkg/util"
 )
 
 const (

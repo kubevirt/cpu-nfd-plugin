@@ -4,15 +4,14 @@ go: "1.10"
 services:
 - docker
 
-before_script:
-- echo "$NFDPASS" | docker login -u="$NFDNAME" quay.io --password-stdin
-
 jobs:
   include:
   - stage: Build Image
-    name: build kubevirt-cpu-nfd-plugin image
+    name: build cpu-nfd-plugin image
     script: make image 
     deploy:
+      before_script: 
+      - echo "$NFDPASS" | docker login -u="$NFDNAME" quay.io --password-stdin
       provider: script
       skip_cleanup: true
       script: make push-image
