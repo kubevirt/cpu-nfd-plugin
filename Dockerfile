@@ -8,11 +8,15 @@ ENV GOPATH=/go
 
 COPY . .
 
-RUN GO111MODULE=on go mod download
+ENV export GO111MODULE=on
 
-RUN GO111MODULE=on go test ./...
+ENV export GOPROXY=off
 
-RUN GO111MODULE=on CGO_ENABLED=0 GOOS=linux go build -o /cpu-nfd-plugin cmd/cpu-nfd-plugin/cpu-nfd-plugin.go
+ENV export GOFLAGS="-mod=vendor"
+
+RUN go test ./...
+
+RUN CGO_ENABLED=0 GOOS=linux go build -o /cpu-nfd-plugin cmd/cpu-nfd-plugin/cpu-nfd-plugin.go
 
 FROM registry.access.redhat.com/ubi8/ubi-minimal
 
