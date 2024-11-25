@@ -1,3 +1,5 @@
+**⚠️ This repository is deprecated and no longer maintained.**
+
 # cpu-nfd-plugin
 
 **cpu-nfd-plugin** is plugin for [node-labeller](https://github.com/kubevirt/node-labeller). It creates list of all supported cpu models and features on host, which node-labeller then exposes as node labels.
